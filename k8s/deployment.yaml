@@ -40,3 +40,46 @@ spec:
 
 ---
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: api-kubenews
+  template:
+    metadata:
+      labels:
+        app: api-kubenews
+    spec:
+      containers:
+      - name: kubenews
+        image: audreycosta/kube-news:v1
+        ports:
+        -  containerPort: 8080
+        env:
+        - name: DB_DATABASE
+          value: "kubenews"
+        - name: DB_USERNAME
+          value: "kubenews"
+        - name: DB_PASSWORD
+          value: "Pg#123"
+        - name: DB_HOST
+          value: "postgres-service"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  selector:
+    app: api-kubenews
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30000
+  type: NodePort
